@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>ExtJS - 6.0.0</title>
+    <base href="./" />
+    <style>
+        *, *:after, *:before {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0 !important;
+        }
+        div#preloader * {
+            font-family: Arial;
+        }
+        div#preloader {
+            -moz-user-select: none;
+            background-color: #9ab;
+            background-position: center center;
+            background-size: 100% 100%;
+            height: 100%;
+            width: 100%;
+            left: 0;
+            top: 0;
+            font-size: 18px;
+            padding: 20px 0 0 0;
+            line-height: normal;
+            position: absolute;
+            z-index: 20000;
+        }
+        div#preloader-info {
+            width: 380px;
+            min-height: 250px;
+            background-color: #EEEEEE;
+            background-image: radial-gradient(circle 700px at 20px 40px, rgb(249, 249, 249) 0%, rgb(200, 200, 200) 50%, rgb(140, 140, 140) 100%);
+            margin: 0 auto;
+            text-align: center;
+            box-shadow: 0 20px 40px -20px rgba(0,0,0,.4);
+        }
+        div#preloader-panel div#preloader-title {
+            background-position: center -20px;
+            background-repeat: no-repeat;
+            text-shadow: 1px 1px #FFF;
+            font-size: 1.6em !important;
+            color: #888;
+            margin: 20px 0 0;
+            padding: 67px 0 0;
+            line-height: 36px;
+        }
+        div#preloader-panel div#preloader-title {
+            text-shadow: 1px 1px #FFF;
+            font-size: 1.6em !important;
+            color: #888;
+            margin: 20px 0 0;
+            padding: 67px 0 0;
+            line-height: 36px;
+        }
+
+        div#preloader-version {
+            font-size: .6em !important;
+            color: #666;
+            margin-top: 7px;
+        }
+        div#preloader-status {
+            font-family: monospace !important;
+            color:#666;
+            font-size: .7em !important;
+            letter-spacing: 1px;
+            line-height: 20px;
+            margin-top: 15px;
+        }
+        div#preloader-log {
+            font-family: monospace !important;
+            text-align: right;
+            font-size: .6em !important;
+            color: #777;
+            padding: 8px;
+            margin-top: 15px;
+            line-height: .9;
+        }
+    </style>
+
+</head>
+
+
+
+<body onload="bodyOnLoad();">
+
+<div id="preloader">
+    <div id="preloader-info">
+        <div id="preloader-panel">
+            <div id="preloader-title">Тест</div>
+            <div id="preloader-version">ExtJS</div>
+            <div>
+                <svg id="cssload-container" width='160px' height='160px' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" class="uil-ripple">
+                    <rect x="0" y="0" width="100" height="100" fill="none" class="bk"></rect>
+                    <g> <animate attributeName="opacity" dur="3s" repeatCount="indefinite" begin="0s" keyTimes="0;0.33;1" values="0;1;0"></animate>
+                        <circle cx="50" cy="50" r="40" stroke="#888888" fill="none" stroke-width="1" stroke-linecap="round">
+                            <animate attributeName="r" dur="3s" repeatCount="indefinite" begin="0s" keyTimes="0;0.33;1" values="0;22;44"></animate></circle></g>
+                    <g><animate attributeName="opacity" dur="3s" repeatCount="indefinite" begin="1.5s" keyTimes="0;0.33;1" values="0;1;0"></animate>
+                        <circle cx="50" cy="50" r="40" stroke="#FFFFFF" fill="none" stroke-width="1" stroke-linecap="round">
+                            <animate attributeName="r" dur="3s" repeatCount="indefinite" begin="1.5s" keyTimes="0;0.33;1" values="0;22;44"></animate></circle></g></svg>
+            </div>
+            <div id="preloader-status">Загрузка библиотек...</div>
+            <div id="preloader-log"></div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    bodyOnLoad = (function () {
+        Preloader = {};
+        L = {
+            c: {PATH_WEB: ''}
+        };
+        L.c.PATH_EXT_CSS   = L.c.PATH_WEB + 'ext/ext-6.0.0/build/classic';
+        L.c.PATH_EXT       = L.c.PATH_WEB + 'ext/ext-6.0.0/build';
+        L.loader = {
+            stack: [],
+            loadedKeys: [],
+            err: false,
+            debug: true,
+            map: {
+                'app':          {path: 'app.js', cache: false},
+                'extCss1':      {path: L.c.PATH_EXT_CSS + '/theme-triton/resources/theme-triton-all_1.css', cache: true},
+                'extCss2':      {path: L.c.PATH_EXT_CSS + '/theme-triton/resources/theme-triton-all_2.css', cache: true},
+                'tritonJs':     {path: L.c.PATH_EXT_CSS + '/theme-triton/theme-triton.js', cache: true},
+                'ext':          {path: L.c.PATH_EXT + '/ext-all.js', cache: true},
+                'extRu':        {path: L.c.PATH_EXT + '/classic/locale/locale-ru.js', cache: true}
+            },
+            req: [
+                'extCss1',
+                'extCss2',
+                {key: 'app', req: [
+                    {key: 'extRu', req: ['ext']},
+                    {key: 'tritonJs', req: ['ext']}
+                ]}
+            ],
+            go:function(){
+                var a=L.loader,map=a.map,r=arguments[0]||a.req,p=arguments[1],i,l,key,item;
+                r=typeof(r)==='string'?r.split(','):r;
+                for(i=0,l=r.length;i<l;i++){
+                    key=typeof(r[i])==='string'?r[i]:r[i]['key'];item=map[key]||{};item.key=key;
+                    if(p){p.req=p.req||[];p.req.push(key);}
+                    (item.path&&r[i]['req'])?a.go(r[i]['req'],item):r[i]['req']!==undefined&&a.msg('Этого элемента нет в карте загрузки: '+r[i]['req'],true);!~a.stack.indexOf(key)&&a.stack.push(key);
+                }
+                if(!r.length){a.msg('Список зависимостей пуст',false);a.hide();}
+            },
+            load:function(){
+                var a=L.loader,map=a.map,stack=a.stack,k=arguments[0],i,l;
+                k=typeof(k)==='string'?k.split(','):k;
+                for(i=0,l=stack.length;i<l;i++){
+                    map[stack[i]]&&(!k||!!~k.indexOf(stack[i]))&&((map[stack[i]]||{}).req||[]).every(function(v){return!!~a.loadedKeys.indexOf(v);})&&!(map[stack[i]]||{}).start&&!a.err&&map[stack[i]]&&document.head.appendChild(a.getNode(map[stack[i]]));
+                }
+            },
+            clr:function(){
+                var l=document.getElementById('preloader-log')||{};l.innerHTML='';
+            },
+            msg:function(m,s){
+                var st=document.getElementById('preloader-status')||{style:{}};st.innerHTML=m;if(s!==null&&s!==undefined){st.style.color=(s===false?'red':'green');}
+            },
+            log:function(m){
+                var l=document.getElementById('preloader-log')||{};l.innerHTML+= L.loader.err||L.loader.debug?'<br>'+m:'&bull;';
+            },
+            hide:function(){
+                var c=document.getElementById('cssload-container')||{style:{}};c.style.opacity=0;
+            },
+            getNode:function(c){
+                var a=L.loader,path=c.path.split('.'),n,ext=(path.pop()).toLowerCase();
+                c.start=new Date().getTime();a.log((c.path).split('/').pop());
+                switch(ext){
+                    case 'js':
+                        n=document.createElement('script');n.sa=n.setAttribute;n.sa('type','text/javascript');n.sa('src',c.path+(c.cache?'':'?_dc='+c.start));
+                        break;
+                    case 'css':
+                        n=document.createElement('link');n.sa=n.setAttribute;n.sa('rel','stylesheet');n.sa('type','text/css');n.sa('href',c.path+(c.cache?'':'?_dc='+c.start));
+                        break;
+                    default:a.onError();return false;
+                }
+                n.sa('onload','L.loader.onLoad.apply(this);');n.sa('onerror','L.loader.onError.apply(this);');n.sa('req',(c.req||[]).join());n.sa('key',c.key);n.sa('src_tmp',c.path);
+                return n;
+            },
+            onLoad:function(){
+                var t=this,a=L.loader,k=t.getAttribute('key'),i=a.map[k];t.ra=this.removeAttribute;
+                i.finish=new Date().getTime();i.delay=i.finish-i.start;
+                a.loadedKeys.push(k);
+                t.ra('src_tmp');t.ra('onload');t.ra('onerror');t.ra('key');t.ra('req');
+                a.loadedKeys.length<a.stack.length && a.load();
+//            if (a.loadedKeys.length == a.stack.length){a.msg('Готово', true);a.hide()}
+            },
+            onError:function () {
+                var path=this.href||this.src,a=L.loader;a.msg('Ошибка при загрузке компонентов',false);a.hide();!a.err&&a.clr();a.err=true;a.log((path.split('/').pop()).split('?_dc')[0]);
+            }
+        };
+        L.loader.go();
+        L.loader.load();
+    });
+</script>
+</body>
+
+</html>
